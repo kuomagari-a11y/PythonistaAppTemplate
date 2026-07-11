@@ -1,7 +1,52 @@
-#! python2  # This template does not currently support Python 3
-#coding: utf-8
+import random
 
-# Put your script (and all resources that it needs for running) in this folder.
-# The filename of the main script should be "main.py".
+# じゃんけんの手のリスト
+rock_paper_scissors = ['グー', 'チョキ', 'パー']
 
-print('Hello World')
+# ゲーム開始のメッセージ
+print('じゃんけんしない')
+print('番号を入力してね')
+print('1番・グー　2番・チョキ　3番・パー')
+
+# ユーザーの手の入力
+number = input('あなたの手は？ ')
+
+# ユーザーの手の判定
+if number == '1':
+    user = 'グー'
+elif number == '2':
+    user = 'チョキ'
+elif number == '3':
+    user = 'パー'
+
+# コンピューターの手の選択
+cpu = random.choice(rock_paper_scissors)
+cpu = 'グー'
+
+# ユーザーとコンピューターの手を表示
+print(f'あなたは{user}。向こうは{cpu}。')
+
+# 勝敗の判定と結果の表示
+if user == 'グー':
+    if cpu == 'グー':
+        print('あいこ！')
+    elif cpu == 'チョキ':
+        print('あなたの勝ち！')
+    elif cpu == 'パー':
+        print('あなたの負け！')
+# 他の手の組み合わせも同様に判定できます
+if user == 'チョキ':
+    if cpu == 'グー':
+        print('あなたの負け！')
+    elif cpu == 'チョキ':
+        print('あいこ！')
+    elif cpu == 'パー':
+        print('あなたの勝ち！')
+
+if user == 'パー':
+    if cpu == 'グー':
+        print('あなたの勝ち！')
+    elif cpu == 'チョキ':
+        print('あなたの負け！')
+    elif cpu == 'パー':
+        print('あいこ！')
