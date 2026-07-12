@@ -27,6 +27,14 @@ jobs:
         echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
         echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
 
+        # --- 診断用: デコード結果のファイルサイズと種別を必ず表示する ---
+        echo "----- DEBUG: decoded file info -----"
+        echo "BUILD_CERTIFICATE_BASE64 length: ${#BUILD_CERTIFICATE_BASE64}"
+        echo "BUILD_PROVISION_PROFILE_BASE64 length: ${#BUILD_PROVISION_PROFILE_BASE64}"
+        ls -la $CERTIFICATE_PATH $PP_PATH
+        file $CERTIFICATE_PATH $PP_PATH
+        echo "----- DEBUG end -----"
+
         security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
         security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
         security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
