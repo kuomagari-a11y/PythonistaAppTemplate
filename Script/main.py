@@ -1,52 +1,60 @@
 import random
 
-# じゃんけんの手のリスト
-rock_paper_scissors = ['グー', 'チョキ', 'パー']
+import toga
+from toga.style import Pack
+from toga.style.pack import COLUMN, ROW
 
-# ゲーム開始のメッセージ
-print('じゃんけんしない')
-print('番号を入力してね')
-print('1番・グー　2番・チョキ　3番・パー')
+HANDS = ["グー", "チョキ", "パー"]
 
-# ユーザーの手の入力
-number = input('あなたの手は？ ')
 
-# ユーザーの手の判定
-if number == '1':
-    user = 'グー'
-elif number == '2':
-    user = 'チョキ'
-elif number == '3':
-    user = 'パー'
+def judge(user, cpu):
+    if user == cpu:
+        return "あいこ！"
+    wins = {
+        "グー": "チョキ",
+        "チョキ": "パー",
+        "パー": "グー",
+    }
+    if wins[user] == cpu:
+        return "あなたの勝ち！"
+    return "あなたの負け！"
 
-# コンピューターの手の選択
-cpu = random.choice(rock_paper_scissors)
-cpu = 'グー'
 
-# ユーザーとコンピューターの手を表示
-print(f'あなたは{user}。向こうは{cpu}。')
+class Janken(toga.App):
+    def startup(self):
+        self.result_label = toga.Label(
+            "手を選んでね",
+            style=Pack(padding=10, font_size=18, text_align="center"),
+        )
 
-# 勝敗の判定と結果の表示
-if user == 'グー':
-    if cpu == 'グー':
-        print('あいこ！')
-    elif cpu == 'チョキ':
-        print('あなたの勝ち！')
-    elif cpu == 'パー':
-        print('あなたの負け！')
-# 他の手の組み合わせも同様に判定できます
-if user == 'チョキ':
-    if cpu == 'グー':
-        print('あなたの負け！')
-    elif cpu == 'チョキ':
-        print('あいこ！')
-    elif cpu == 'パー':
-        print('あなたの勝ち！')
+        buttons = toga.Box(
+            children=[
+                toga.Button(
+                    hand,
+                    on_press=self.play,
+                    id=hand,
+                    style=Pack(flex=1, padding=5),
+                )
+                for hand in HANDS
+            ],
+            style=Pack(direction=ROW, padding=10),
+        )
 
-if user == 'パー':
-    if cpu == 'グー':
-        print('あなたの勝ち！')
-    elif cpu == 'チョキ':
-        print('あなたの負け！')
-    elif cpu == 'パー':
-        print('あいこ！')
+        main_box = toga.Box(
+            children=[self.result_label, buttons],
+            style=Pack(direction=COLUMN, padding=10),
+        )
+
+        self.main_window = toga.MainWindow(title=self.formal_name)
+        self.main_window.content = main_box
+        self.main_window.show()
+
+    def play(self, widget):
+        user = widget.id
+        cpu = random.choice(HANDS)
+        result = judge(user, cpu)
+        self.result_label.text = f"あなたは{user}。向こうは{cpu}。\n{result}"
+
+
+def main():
+    return Janken()
