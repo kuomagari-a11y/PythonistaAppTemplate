@@ -27,26 +27,45 @@ jobs:
         echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
         echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
 
-        # --- 診断用: デコード結果のファイルサイズと種別を必ず表示する ---
-        echo "----- DEBUG: decoded file info -----"
         echo "BUILD_CERTIFICATE_BASE64 length: ${#BUILD_CERTIFICATE_BASE64}"
         echo "BUILD_PROVISION_PROFILE_BASE64 length: ${#BUILD_PROVISION_PROFILE_BASE64}"
         ls -la $CERTIFICATE_PATH $PP_PATH
-        file $CERTIFICATE_PATH $PP_PATH
-        echo "----- DEBUG end -----"
+
+        set +e
 
         security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+        echo ">>> create-keychain exit: $?"
         security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+        echo ">>> set-keychain-settings exit: $?"
         security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+        echo ">>> unlock-keychain exit: $?"
+
         security import $CERTIFICATE_PATH -k $KEYCHAIN_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12
+        echo ">>> security import exit: $?"
+
         security list-keychain -d user -s $KEYCHAIN_PATH $(security list-keychains -d user | sed s/\"//g)
+        echo ">>> list-keychain exit: $?"
         security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+        echo ">>> set-key-partition-list exit: $?"
 
         mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
         cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
+        echo ">>> cp profile exit: $?"
 
-        PROFILE_UUID=$(security cms -D -i $PP_PATH | /usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin)
-        TEAM_ID=$(security cms -D -i $PP_PATH | /usr/libexec/PlistBuddy -c "Print TeamIdentifier:0" /dev/stdin)
+        security cms -D -i $PP_PATH -o /tmp/profile.plist
+        echo ">>> security cms -D exit: $?"
+        echo "----- decoded plist (head) -----"
+        head -c 500 /tmp/profile.plist
+        echo ""
+        echo "----- decoded plist end -----"
+
+        security find-identity -v -p codesigning "$KEYCHAIN_PATH"
+        echo ">>> find-identity exit: $?"
+
+        set -e
+
+        PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" /tmp/profile.plist)
+        TEAM_ID=$(/usr/libexec/PlistBuddy -c "Print TeamIdentifier:0" /tmp/profile.plist)
         SIGN_IDENTITY=$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" | head -n 1 | sed -E 's/.*"(.*)"/\1/')
 
         echo "PROFILE_UUID=$PROFILE_UUID" >> $GITHUB_ENV
