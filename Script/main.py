@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import random
 
 # じゃんけんの手のリスト
@@ -9,7 +10,7 @@ print('番号を入力してね')
 print('1番・グー　2番・チョキ　3番・パー')
 
 # ユーザーの手の入力
-number = input('あなたの手は？ ')
+number = raw_input('あなたの手は？ ')
 
 # ユーザーの手の判定
 if number == '1':
@@ -24,7 +25,7 @@ cpu = random.choice(rock_paper_scissors)
 cpu = 'グー'
 
 # ユーザーとコンピューターの手を表示
-print(f'あなたは{user}。向こうは{cpu}。')
+print('あなたは{}。向こうは{}。'.format(user, cpu))
 
 # 勝敗の判定と結果の表示
 if user == 'グー':
