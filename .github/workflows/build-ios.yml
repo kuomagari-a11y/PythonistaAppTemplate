@@ -79,7 +79,7 @@ jobs:
           -target "My App" \
           -configuration Release \
           -sdk iphoneos \
-          -derivedDataPath build \
+          SYMROOT="$PWD/build" \
           CODE_SIGN_STYLE=Manual \
           CODE_SIGN_IDENTITY="$SIGN_IDENTITY" \
           PROVISIONING_PROFILE="$PROFILE_UUID" \
@@ -89,7 +89,8 @@ jobs:
 
     - name: Package IPA
       run: |
-        APP_PATH=$(find build/Build/Products -maxdepth 2 -name "*.app")
+        APP_PATH=$(find build -maxdepth 2 -name "*.app")
+        echo "APP_PATH=$APP_PATH"
         mkdir -p Payload
         cp -r "$APP_PATH" Payload/
         zip -r PythonistaAppTemplate.ipa Payload
