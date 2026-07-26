@@ -63,7 +63,7 @@ def move_bar():
 
 def draw_score():
     global count
-    cv.create_text(100, 20, text=f"Score: {count*100}", fill="black", font=("Arial", 16))
+    cv.create_text(100, 20, text="Score: {}".format(count*100), fill="black", font=("Arial", 16))
 
 def game_loop():
     cv.delete("all")
