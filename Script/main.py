@@ -8,7 +8,7 @@ class PongGame(Scene):
         self.ball = {
             'x': self.size.w / 2,
             'y': self.size.h / 2,
-            'dirx': 6,
+            'dirx': -6,
             'diry': -6,
             'r': 10,
         }
