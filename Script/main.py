@@ -1,53 +1,78 @@
-# -*- coding: utf-8 -*-
-import random
+import keyboard
+from tkinter import *
 
-# じゃんけんの手のリスト
-rock_paper_scissors = ['グー', 'チョキ', 'パー']
+ball = {
+    "dirx": 15,
+    "diry": -15,
+    "x": 350,
+    "y": 300,
+    "w": 10,
+}
+bar = {
+    "x": 550,
+    "y": 100,
+    "w": 100,
+}
+count = 0
 
-# ゲーム開始のメッセージ
-print('じゃんけんしない')
-print('番号を入力してね')
-print('1番・グー　2番・チョキ　3番・パー')
+win = Tk()
+cv = Canvas(win, width=600, height=400)
+cv.pack()
 
-# ユーザーの手の入力
-number = raw_input('あなたの手は？ ')
+def draw_ball():
+    cv.create_oval(
+        ball["x"] - ball["w"], ball["y"] - ball["w"],
+        ball["x"] + ball["w"], ball["y"] + ball["w"],
+        fill="green")
 
-# ユーザーの手の判定
-if number == '1':
-    user = 'グー'
-elif number == '2':
-    user = 'チョキ'
-elif number == '3':
-    user = 'パー'
+def draw_bar():
+    cv.create_rectangle(
+        bar["x"] - 5, bar["y"] - bar["w"],
+        bar["x"] + 5, bar["y"] + bar["w"],
+        fill="black")
 
-# コンピューターの手の選択
-cpu = random.choice(rock_paper_scissors)
-cpu = 'グー'
+def move_ball():
+    global count
+    bx = ball["x"] + ball["dirx"]
+    by = ball["y"] + ball["diry"]
+    
+    if bx < 0:
+        ball["dirx"] *= -1
+    if by < 0 or by > 400:
+        ball["diry"] = ball["diry"] * (-1)
+    if bx > 550 and (by > bar["y"] - bar["w"] and  by < bar["y"] + bar["w"] ):
+        ball["dirx"] *= -1
+        count += 1
+    if bx > 600:
+        cv.create_text(100, 200, text="YOU LOSE", fill="red", font=("Bold", 20))
+        win.quit()
+ 
+    ball["x"] += ball["dirx"]
+    ball["y"] += ball["diry"]
 
-# ユーザーとコンピューターの手を表示
-print('あなたは{}。向こうは{}。'.format(user, cpu))
+def move_bar():   
+    if keyboard.is_pressed('up'):
+        bar["y"] -= 10
+    if keyboard.is_pressed('down'):
+        bar["y"] += 10
+    
+    if bar["y"] < 0:
+        bar["y"] = 0
+    if bar["y"] > 400:
+        bar["y"] = 400
 
-# 勝敗の判定と結果の表示
-if user == 'グー':
-    if cpu == 'グー':
-        print('あいこ！')
-    elif cpu == 'チョキ':
-        print('あなたの勝ち！')
-    elif cpu == 'パー':
-        print('あなたの負け！')
-# 他の手の組み合わせも同様に判定できます
-if user == 'チョキ':
-    if cpu == 'グー':
-        print('あなたの負け！')
-    elif cpu == 'チョキ':
-        print('あいこ！')
-    elif cpu == 'パー':
-        print('あなたの勝ち！')
+def draw_score():
+    global count
+    cv.create_text(100, 20, text=f"Score: {count*100}", fill="black", font=("Arial", 16))
 
-if user == 'パー':
-    if cpu == 'グー':
-        print('あなたの勝ち！')
-    elif cpu == 'チョキ':
-        print('あなたの負け！')
-    elif cpu == 'パー':
-        print('あいこ！')
+def game_loop():
+    cv.delete("all")
+    draw_ball()
+    draw_bar()
+    move_ball()
+    move_bar()
+    draw_score()
+    win.after(20, game_loop)
+
+game_loop()
+win.mainloop()
