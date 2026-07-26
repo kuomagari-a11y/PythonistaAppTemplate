@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class PongLogic:
     def __init__(self, width, height):
         self.width = width
